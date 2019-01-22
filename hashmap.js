@@ -1,5 +1,67 @@
 'use strict';
 
+class _Node {
+    constructor(data, next=null){
+        this.data = data;
+        this.next = next;
+    }
+}
+class LinkedList {
+    constructor(node=null, next=null){
+        this.head = node;
+        this.next = next;
+    }
+    add(data){
+        //is this list empty?
+        if(!this.head){
+            this.head = new _Node(data, null);
+        }
+       let temp = this.head;
+        this.head = new _Node(data, temp);
+    }
+    remove(data){
+        if(!this.head){
+            return undefined;
+        }
+        if(this.head.data === data){
+            this.head = this.head.next;
+            return true;//maybe change dunno?
+        }
+         //here list has stuff
+        let currentNode = this.head;
+        let prevNode = null;
+        while(currentNode !== undefined && currentNode.data !== data){
+            prevNode = currentNode; 
+            currentNode = currentNode.next;
+        }
+        //found data, or data not on list
+        if(currentNode === undefined){
+            return undefined;
+        }
+        if(currentNode.data === data){
+            prevNode.next = currentNode.next;
+        }
+        return true;
+    }
+    find(data){
+        if(!this.head){
+            return undefined;
+        }
+        else {
+            //here list has stuff
+            let currentNode = this.head;
+            while(currentNode !== undefined && currentNode.data !== data){
+                currentNode = currentNode.next;
+            }
+            //1 found data, or data not on list
+            if(currentNode === undefined){
+                return undefined;
+            }
+            return currentNode.data;//come back here later if want node on finds
+        }
+    }
+}
+
 class HashMap {
   constructor() {
     this.length = 0;
@@ -15,14 +77,25 @@ class HashMap {
     }
 
     const index = this._findSlot(key);
-    this.array[index] = {
-      key,
-      value,
-      deleted: false
-    };
-    this.length++;
+    // this.array[index] = {
+    //   key,
+    //   value,
+    //   deleted: false
+    // };
+    /**   now we need to make our list at this index, have the data,, */
+    //this.array[index] = //the node of the list
     //console.log("Here, the cap: ", this.capacity);
     //console.log("Here, the length: ", this.length);
+    //is there a LL already at this index? yes add to that LL |no new LL add to it
+    if(this.array[index]=== undefined){
+        let newbie = new _Node({key: value}, null);
+        this.array[index] = new LinkedList(newbie, null);
+        this.length++;
+    }
+    else {
+        //there is a list already, add new node to it.
+        this.array[index].add({key: value});
+    }
   }
 
   remove(key) {
@@ -31,6 +104,7 @@ class HashMap {
     if (slot === undefined) {
       throw new Error('Key was not found');
     }
+    //search thru this slot to find the linked list matching data
     slot.deleted = true;
     this.length--;
     this.deleted++;
@@ -42,6 +116,7 @@ class HashMap {
       //throw new Error('Key does not exist');
       return undefined;
     }
+    // search the linked list at this spot for the matching data
     return this.array[index].value;
   }
 
@@ -77,9 +152,17 @@ class HashMap {
     for (let i = start; i < start + this.capacity; i++) {
       const index = i % this.capacity;
       const slot = this.array[index];
-      if (slot === undefined || (slot.key == key && !slot.deleted)) {
+      //if (slot === undefined || (slot.key == key && !slot.deleted)) {
+        
         return index;
-      }
+     // }
+      // here .. collision
+      // add the data here to our linked list
+      /*
+*       [a, -, c, -, e, f ... n] <-- 'add hannah' go into d, c is taken, d = -   
+*       [LLA,LLB ,LLc, -, -, -   n ] <--  'add hannah' hash>>c , c is taken, Now
+                    c is a linked list, add hannah to the list. c is hannah's key*
+      */
     }
   }
   log() {
